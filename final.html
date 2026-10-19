@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title></title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Firebase App (core) -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <!-- Firebase Firestore -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+</head>
+
+<body class="bg-gray-50 text-gray-900 flex flex-col min-h-screen">
+
+  <!-- Header -->
+  <header class="text-center py-6 bg-white shadow-sm">
+    <h1 id="thankYouTitle" class="text-3xl font-bold"></h1>
+  </header>
+
+  <!-- Main Section -->
+  <main class="flex flex-col items-center justify-center flex-grow p-6 space-y-6 w-full max-w-xl mx-auto">
+    <p id="thankYouText" class="text-xl text-center"></p>
+    <p id="feedbackText" class="text-xl text-center"></p>
+    <!-- Feedback box -->
+    <div class="w-full">
+      <label id ="feedbackLabel" for="feedback" class="block text-sm font-medium text-gray-700 mb-2">
+      </label>
+      <textarea
+        id="feedback"
+        rows="5"
+        class="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+      ></textarea>
+    </div>
+
+    <!-- Submit button -->
+    <button
+      onclick="sendFeedback()"
+      class="px-6 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition" id="feedbackButton"
+    >
+      
+    </button>
+  </main>
+
+  <!-- Footer -->
+  <footer class="text-center text-gray-500 text-sm py-4">
+    © 2025 Eneko Atxa Landa
+  </footer>
+
+</body>
+
+<script>
+  let translations = {};
+  var language = localStorage.getItem("language");
+  loadLanguage(language);
+  var db;
+  loadFirebase();
+
+  async function loadLanguage(lang) {
+    try {
+      const response = await fetch(`${lang}.json`);
+      translations = await response.json();
+      updateContent();
+    } catch (err) {
+      console.error("Failed to load language file:", err);
+    }
+  }
+
+  function updateContent() {
+    document.title = translations.title;
+    document.getElementById("thankYouTitle").innerHTML = translations.thankYouTitle;
+    document.getElementById("thankYouText").innerHTML = translations.thankYouText;
+    document.getElementById("feedbackText").innerHTML = translations.feedbackText;
+    document.getElementById("feedbackLabel").innerHTML = translations.feedbackLabel;
+    document.getElementById("feedbackButton").innerHTML = translations.feedbackButton;
+  }
+
+  async function sendFeedback() {
+    const feedbackText = document.getElementById("feedback").value.trim();
+    const age = localStorage.getItem("age");
+    const gender = localStorage.getItem("gender");
+    const language = localStorage.getItem("language");
+    const userID = localStorage.getItem("userID");
+
+    const result = {
+      feedbackText: feedbackText,
+      age: age,
+      gender: gender,
+      language: language,
+      userID: userID,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    };
+
+    try {
+      await db.collection("feedback").add(result);
+
+      document.getElementById("feedback").value = "";
+
+      if (language === "eus") {
+        alert("Los datos se han guardado correctamente.");
+      } else if (language === "en") {
+        alert("Datuak gorde dira.");
+      } else {
+        alert("Data saved successfully.");
+      }
+
+      const btn = document.getElementById("feedbackButton");
+      if (btn) {
+        btn.disabled = true;
+        btn.classList.add("cursor-not-allowed", "opacity-50");
+      }
+
+    } catch (err) {
+      console.error(err);
+
+      if (language === "es") {
+        alert("Error al guardar los datos. Por favor, póngase en contacto con el administrador.");
+      } else if (language === "eus") {
+        alert("Errorea datuak gordetzean. Abisatu administratzaileari, mesedez.");
+      } else {
+        alert("Error saving data. Please contact the administrator.");
+      }
+    }
+  }
+
+  function loadFirebase(){
+    const firebaseConfig = {
+      apiKey: "AIzaSyCAjgJ9z4qeMvEx03_y3m8wJwYnHY7OYL4",
+      authDomain: "ctrlidle.firebaseapp.com",
+      projectId: "ctrlidle",
+      storageBucket: "ctrlidle.firebasestorage.app",
+      messagingSenderId: "1063127745379",
+      appId: "1:1063127745379:web:8067eda28b3beabbeb4956"
+    };
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+
+    // Get Firestore reference
+    db = firebase.firestore();
+  }
+
+</script>
+
+</html>

@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title></title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Firebase App (core) -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+
+  <!-- Firebase Firestore -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+</head>
+
+
+<body class="bg-gray-50 text-gray-900 flex flex-col min-h-screen">
+
+  <!-- Header -->
+  <header class="text-center py-6 bg-white shadow-sm">
+
+    <h1
+      id="headerTitle"
+      class="text-3xl font-bold">
+    </h1>
+
+    <p
+      id="headerExplanation"
+      class="text-gray-500 mt-2">
+    </p>
+
+    <h1
+      id="headerProgress"
+      class="text-3xl font-bold text-gray-500 mt-2">
+    </h1>
+
+  </header>
+
+
+  <!-- Main Video Section -->
+  <main class="flex flex-col items-center justify-center flex-grow w-full">
+
+    <!-- Ranking instructions -->
+    <div class="flex flex-row justify-between items-center w-full max-w-[1720px] px-4 py-4">
+      <p id="fastest" class="font-semibold bg-green-100 px-6 py-3 rounded-2xl"></p>
+      <h2 id="mainQuestionOrdering" class="text-2xl font-semibold text-center mb-2"></h2>
+      <p id="slowest" class="font-semibold bg-red-100 px-6 py-3 rounded-2xl"></p>
+    </div>
+
+
+    <!-- Video Grid -->
+    <div
+      id="videoGrid"
+      class="grid grid-cols-1 md:grid-cols-4 gap-2 w-full max-w-[1720px]"
+    >
+
+      <!-- Video 1 -->
+      <div
+        class="video-container bg-white rounded-2xl shadow p-4 flex flex-col items-center cursor-grab select-none transition"
+        draggable="true"
+        data-video-type=""
+      >
+
+        <video
+          id="videoElement0"
+          class="rounded-xl w-full"
+          controls
+          muted
+        >
+          <source src="" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+
+        <p
+          id="video1"
+          class="mt-3 font-medium text-lg">
+        </p>
+      </div>
+
+
+      <!-- Video 2 -->
+      <div
+        class="video-container bg-white rounded-2xl shadow p-4 flex flex-col items-center cursor-grab select-none transition"
+        draggable="true"
+        data-video-type=""
+      >
+
+        <video
+          id="videoElement1"
+          class="rounded-xl w-full"
+          controls
+          muted
+        >
+          <source src="" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+
+        <p
+          id="video2"
+          class="mt-3 font-medium text-lg">
+        </p>
+      </div>
+
+
+      <!-- Video 3 -->
+      <div
+        class="video-container bg-white rounded-2xl shadow p-4 flex flex-col items-center cursor-grab select-none transition"
+        draggable="true"
+        data-video-type=""
+      >
+
+        <video
+          id="videoElement2"
+          class="rounded-xl w-full"
+          controls
+          muted
+        >
+          <source src="" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+
+        <p
+          id="video3"
+          class="mt-3 font-medium text-lg">
+        </p>
+      </div>
+
+
+      <!-- Video 4 -->
+      <div
+        class="video-container bg-white rounded-2xl shadow p-4 flex flex-col items-center cursor-grab select-none transition"
+        draggable="true"
+        data-video-type=""
+      >
+
+        <video
+          id="videoElement3"
+          class="rounded-xl w-full"
+          controls
+          muted
+        >
+          <source src="" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+
+        <p
+          id="video4"
+          class="mt-3 font-medium text-lg">
+        </p>
+      </div>
+    </div>
+  </main>
+
+
+  <!-- Submit Section -->
+  <section class="bg-white shadow-inner py-2 px-6">
+    <form id="rankingForm">
+      <div class="flex justify-center mt-4">
+        <button
+          id="submitButton"
+          type="submit"
+          disabled
+          class="bg-green-600 text-white font-semibold px-6 py-2 rounded-xl
+                 hover:bg-green-700 transition opacity-50 cursor-not-allowed"
+        >
+        </button>
+      </div>
+    </form>
+  </section>
+
+  <!-- Footer -->
+  <footer class="text-center text-gray-500 text-sm py-2">
+    © 2026 Eneko Atxa Landa
+  </footer>
+
+<script>
+
+/* =========================================================
+   TRANSLATIONS
+   ========================================================= */
+
+let translations = {};
+
+var language = localStorage.getItem("language");
+
+loadLanguage(language);
+
+
+async function loadLanguage(lang) {
+
+  try {
+    const response = await fetch(`${lang}.json`);
+    translations = await response.json();
+    updateContent();
+
+  } catch (err) {
+    console.error(
+      "Failed to load language file:",
+      err
+    );
+  }
+}
+
+
+function updateContent() {
+  document.title = translations.title;
+  document.getElementById("headerTitle").innerHTML = translations.headerTitle;
+  document.getElementById("headerExplanation").innerHTML = translations.headerExplanation;
+  document.getElementById("fastest").innerHTML = translations.fastest;
+  document.getElementById("slowest").innerHTML = translations.slowest;
+  document.getElementById("video1").innerHTML = translations.video1;
+  document.getElementById("video2").innerHTML = translations.video2;
+  document.getElementById("video3").innerHTML = translations.video3;
+  document.getElementById("video4").innerHTML = translations.video4;
+  document.getElementById("mainQuestionOrdering").innerHTML = translations.mainQuestionOrdering;
+  document.getElementById("submitButton").innerHTML = translations.submitButton;
+}
+
+
+/* =========================================================
+   MAIN
+   ========================================================= */
+
+document.addEventListener(
+  "DOMContentLoaded", () => {
+    const videoGrid = document.getElementById("videoGrid");
+    const videoElements = document.querySelectorAll("video");
+    const videoContainers = document.querySelectorAll(".video-container");
+    const form = document.getElementById("rankingForm");
+    const submitButton = document.getElementById("submitButton");
+    const age = localStorage.getItem("age");
+    const gender = localStorage.getItem("gender");
+
+    var db;
+
+    loadFirebase();
+
+    var videoId;
+    var responseCount = 0;
+    var maxResponses = 20;
+    var videoIds = [];
+    var numVideos = 50;
+
+    var attentionCheck1 = Math.floor(Math.random() * 4) + 5;
+    var attentionCheck2 = Math.floor(Math.random() * 4) + 13;
+
+    const userID = Date.now();
+
+    localStorage.setItem("userID", userID);
+
+    /* =====================================================
+       DRAG AND DROP VIDEO CONTAINERS
+       ===================================================== */
+
+    let draggedContainer = null;
+
+    /*
+     * Drag start
+     */
+
+    videoGrid.addEventListener("dragstart", (event) => {
+        const container = event.target.closest(".video-container");
+
+        if (!container) {
+          return;
+        }
+
+        draggedContainer = container;
+        container.classList.add("opacity-50");
+        event.dataTransfer.effectAllowed = "move";
+        event.dataTransfer.setData("text/plain", "");
+      }
+    );
+
+    /*
+     * Drag end
+     */
+
+    videoGrid.addEventListener("dragend", (event) => {
+        const container = event.target.closest(".video-container");
+
+        if (!container) {
+          return;
+        }
+
+        container.classList.remove("opacity-50");
+        draggedContainer = null;
+      }
+    );
+
+
+    /*
+     * Drag over
+     */
+
+    videoGrid.addEventListener("dragover", (event) => {
+        event.preventDefault();
+
+        if (!draggedContainer) {
+          return;
+        }
+
+        const afterElement = getDragAfterElement(videoGrid, event.clientX);
+
+        if (afterElement == null) {
+          videoGrid.appendChild(draggedContainer);
+        } else {
+          videoGrid.insertBefore(draggedContainer,afterElement);
+        }
+      }
+    );
+
+    /*
+     * Determine where the dragged video
+     * should be inserted.
+     */
+
+    function getDragAfterElement(container, x) {
+      const elements = [
+        ...container.querySelectorAll(
+          ".video-container:not(.opacity-50)"
+        )
+      ];
+
+      return elements.reduce(
+        (
+          closest,
+          child
+        ) => {
+
+          const box = child.getBoundingClientRect();
+          const offset = x - box.left - box.width / 2;
+
+          if (offset < 0 && offset > closest.offset) {
+            return {
+              offset: offset,
+              element: child
+            };
+          }
+          return closest;
+        },
+        {
+          offset: Number.NEGATIVE_INFINITY,
+          element: null
+        }
+      ).element;
+    }
+
+    /* =====================================================
+       GET CURRENT RANKING
+       ===================================================== */
+
+    function getRanking() {
+      return [
+        ...videoGrid.querySelectorAll(
+          ".video-container"
+        )
+      ].map(container => container.dataset.videoType);
+    }
+
+    /* =====================================================
+       SUBMIT
+       ===================================================== */
+
+    form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const ranking = getRanking();
+
+        if (ranking.length !== 4) {
+          if (language == "es") {
+            alert("Por favor, ordena los cuatro vídeos.");
+          }
+          else if (language == "en") {
+            alert("Please rank all four videos.");
+          }
+          else {
+            alert("Mesedez, ordenatu lau bideoak.");
+          }
+          return;
+        }
+
+        const result = {
+          videoNum: videoId,
+
+          video_01: videoElements[0].src.split("/").slice(-1)[0],
+          video_02: videoElements[1].src.split("/").slice(-1)[0],
+          video_03: videoElements[2].src.split("/").slice(-1)[0],
+          video_04: videoElements[3].src.split("/").slice(-1)[0],
+
+          /*
+           * Example:
+           *
+           * ranking:
+           * ["gt", "slerp", "noise", "nn"]
+           *
+           * means:
+           *
+           * 1st = gt
+           * 2nd = slerp
+           * 3rd = noise
+           * 4th = nn
+           */
+
+          ranking:ranking,
+          timestamp:new Date().toISOString(),
+          userID:userID,
+          responseCount:responseCount,
+          age:age,
+          gender:gender,
+          language:language
+        };
+
+        localStorage.setItem(`videoChoice_${videoId}`,JSON.stringify(result));
+
+        try {
+          await db.collection("videoComparison").add(result);
+
+          if (videoId != attentionCheck1 && videoId != attentionCheck2) {
+            responseCount++;
+          }
+
+          if (responseCount < maxResponses) {
+            form.reset();
+            loadNextVideos(responseCount);
+          }
+          else {
+            await registerEndTime();
+            window.location.href = "final.html";
+          }
+        }
+        catch (err) {
+          console.error(err);
+          if (language == "es") {
+            alert("Error al guardar los datos. Por favor, póngase en contacto con el administrador.");
+          }
+          else if (
+            language == "en"
+          ) {
+            alert("Error saving data. Please, contact the administrator.");
+          }
+          else {
+            alert("Errorea datuak gordetzean. Abisatu administratzaileari, mesedez.");
+          }
+        }
+      }
+    );
+
+
+    /* =========================================================
+       LOAD NEXT VIDEOS
+       ========================================================= */
+
+    function loadNextVideos(responseCount) {
+      document.getElementById("headerProgress").innerHTML = (responseCount + 1) + " / " + maxResponses;
+
+      /*
+       * Reset visual feedback
+       */
+
+      videoElements.forEach(video => {
+          video.classList.remove(
+            "ring-4",
+            "ring-green-400"
+          );
+        }
+      );
+
+      submitButton.disabled = true;
+      submitButton.classList.add("opacity-50", "cursor-not-allowed");
+
+      /*
+       * Select a new video ID
+       */
+
+      videoId = Math.floor(Math.random() * numVideos) + 1;
+
+      while (videoIds.includes(videoId)) {
+        videoId = Math.floor(Math.random() * numVideos) + 1;
+      }
+
+      videoIds.push(videoId);
+
+      /* =====================================================
+         SELECT FOUR DIFFERENT METHODS
+         ===================================================== */
+
+      const options = ["fastest","fast","slow","slowest"];
+      const chosen = [];
+
+      while (chosen.length < 4) {
+
+        const pick = options[Math.floor(Math.random() * options.length)];
+
+        if (!chosen.includes(pick)) {
+          chosen.push(pick);
+        }
+      }
+
+      let selectedVideos = chosen;
+
+      /* =====================================================
+         ATTENTION CHECKS / FIXED TRIALS
+         ===================================================== */
+
+      if (responseCount === attentionCheck1) {
+        selectedVideos = ["attention_11","attention_10","attention_13","attention_12"];
+      }
+
+      else if (responseCount === attentionCheck2) {
+        selectedVideos = ["attention_23","attention_21","attention_20","attention_22"];
+      }
+
+      // else if (responseCount === 0) {
+      //   selectedVideos = ["fastest","fast","slow","slowest"];
+      // }
+
+      // else if (responseCount === 1) {
+      //   selectedVideos = ["fastest","fast","slow","slowest"];
+      // }
+
+      /* =====================================================
+         CREATE VIDEO PATHS
+         ===================================================== */
+
+      const paths = selectedVideos.map(type => {
+        if (type.includes("attention")) {
+              return `videos/attentionChecks/${localStorage.getItem("language")}_${type}.mp4`;
+            }
+            return `videos/${type}/${type}_${videoId}.mp4`;
+          }
+        );
+
+      /* =====================================================
+         RESET VIDEOS
+         ===================================================== */
+
+      videoElements.forEach(video => {
+          video.pause();
+          video.currentTime = 0;
+          video.src = "";
+        }
+      );
+
+      /* =====================================================
+         RESET VIDEO CONTAINER ORDER
+         ===================================================== */
+
+      videoContainers.forEach(container => {
+          videoGrid.appendChild(container);
+        }
+      );
+
+      /* =====================================================
+         ASSIGN SOURCES AND VIDEO TYPES
+         ===================================================== */
+
+      videoElements.forEach((video, index) => {
+          video.src = paths[index];
+          video.load();
+          const container = video.closest(".video-container");
+          container.dataset.videoType = selectedVideos[index];
+        }
+      );
+
+      /* =====================================================
+         VIDEO END CHECK
+         ===================================================== */
+
+      let videoEnded = [false,false,false,false];
+
+      videoElements.forEach((video, index) => {
+          video.onended = () => {videoEnded[index] = true;
+              video.classList.add("ring-4", "ring-green-400");
+
+              if (videoEnded.every(Boolean)) {
+                submitButton.disabled = false;
+                submitButton.classList.remove("opacity-50", "cursor-not-allowed");
+              }
+            };
+        }
+      );
+    }
+
+    /* =========================================================
+       FIREBASE
+       ========================================================= */
+
+    function loadFirebase() {
+      const firebaseConfig = {
+      apiKey: "AIzaSyCAjgJ9z4qeMvEx03_y3m8wJwYnHY7OYL4",
+      authDomain: "ctrlidle.firebaseapp.com",
+      projectId: "ctrlidle",
+      storageBucket: "ctrlidle.firebasestorage.app",
+      messagingSenderId: "1063127745379",
+      appId: "1:1063127745379:web:8067eda28b3beabbeb4956"
+    };
+
+      firebase.initializeApp(firebaseConfig);
+      db = firebase.firestore();
+    }
+
+    /* =========================================================
+       REGISTER END TIME
+       ========================================================= */
+
+    async function registerEndTime() {
+      const endTime = Date.now();
+      const startTime = Number(localStorage.getItem("startButtonClickTime"));
+
+      const result = {
+        startTime:startTime,
+        endTime:endTime,
+        userId:userID
+      };
+
+      try {
+        await db.collection("timing").add(result);
+        console.log("Timing data saved successfully.");
+      }
+      catch (err) {
+        console.error("Error saving timing data:", err);
+      }
+    }
+
+    /* =========================================================
+       START FIRST TRIAL
+       ========================================================= */
+    loadNextVideos(responseCount);
+  }
+);
+</script>
+</html>
